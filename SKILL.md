@@ -7,13 +7,14 @@ description: 处理当前 GitHub PR 中非人类 reviewer（Copilot、Gemini、C
 
 ## Workflow
 
-1. 收集当前 PR 的 review 对话，仅保留非人类 reviewer（bot/AI 工具账号），忽略人类 reviewer。
-2. 先完整阅读所有未解决对话，按文件和逻辑依赖分组，规划处理顺序。
-3. 按顺序逐条处理每个 review：
+1. 识别平台：`git remote get-url origin`，GitHub 用 [references/gh.md](references/gh.md)，GitLab 用 [references/glab.md](references/glab.md) 中的命令完成列取、回复、resolve。
+2. 收集当前 PR/MR 的 review 对话，仅保留非人类 reviewer（bot/AI 工具账号，识别方法见 [references/known-bots.md](references/known-bots.md)），忽略人类 reviewer。
+3. 先完整阅读所有未解决对话，按文件和逻辑依赖分组，规划处理顺序。
+4. 按顺序逐条处理每个 review：
    - 先基于项目目标、现有架构和风险进行工程判断，决定是否采纳。
-   - 若采纳：仅实现当前 review 对应改动，运行最小验证，立即提交一次 commit（一个 review 对应一个 commit），再用同语种精简 comment 说明“做了什么改动 + 在哪个 commit”，然后 resolve。
+   - 若采纳：仅实现当前 review 对应改动，运行最小验证，立即提交一次 commit（一个 review 对应一个 commit）并 push 到远端，再用同语种精简 comment 说明“做了什么改动 + 在哪个 commit”，然后 resolve。
    - 若不采纳：不改代码，在该 review 下用同语种精简 comment 说明“不跟进原因”，然后直接 resolve。
-4. 重复直到所有非人类 review 处理完成。
+5. 重复直到所有非人类 review 处理完成。
 
 ## Rules
 
@@ -24,6 +25,7 @@ description: 处理当前 GitHub PR 中非人类 reviewer（Copilot、Gemini、C
 - AI review 可能不准确，必须进行独立判断；不采纳时给出简短工程理由后可直接 resolve。
 - 无法完整处理时，用同语种简述阻塞原因，并暂不 resolve。
 - 采纳项 comment 必须包含 `commit <short_sha>`（例如 `commit a1b2c3d`）和一条具体改动点。
+- comment 中引用的 commit 必须已 push 到远端，否则 SHA 链接是死链；先 push 再评论。评论发出后禁止对已引用的 commit 做 rebase/amend。
 - 禁用表述：`已按建议调整`、`已在本次独立提交完成`、`已处理` 这类不可追溯句式。
 
 ## Comment Pattern
